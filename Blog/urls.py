@@ -7,10 +7,11 @@ from .views import (
     PostViewSet,
     FriendshipViewSet,
     FriendRequestViewSet,
-    PostByUserViewSet,
+    PostByAuthorViewSet,
     CommentsViewSet,
     UserSearchView, FriendsByUsernameView, UserProfilePicListCreateView, UserProfilePicDetailView,
     UserProfilePicByUsernameView,
+    MentionedPostsViewSet
 )
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 
@@ -22,7 +23,7 @@ router.register(r'friendships', FriendshipViewSet)
 router.register(r'comments', CommentsViewSet)
 router.register(r'friend-requests', FriendRequestViewSet, basename='friendrequest')
 router.register(r'friendships', FriendshipViewSet)
-
+router.register(r'mentioned-posts', MentionedPostsViewSet, basename='mentioned-posts')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -34,7 +35,6 @@ urlpatterns += [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('friend-requests/received/<str:user_identifier>/', FriendRequestViewSet.as_view({'get': 'received'}), name='received-friend-requests'),
     path('friend-requests/sent/<str:user_identifier>/', FriendRequestViewSet.as_view({'get': 'sent'}), name='sent-friend-requests'),
-    path('posts-by-user/<str:username>/', PostByUserViewSet.as_view({'get': 'list'}), name='posts-by-user-list'),
     path('', include(router.urls)),
     path('users/<int:pk>/user-details/', UserViewSet.as_view({'get': 'user_details'}), name='user-details'),
     path('comments/comments_on_post/<int:post_id>/', CommentsViewSet.as_view({'get': 'comments_on_post'}),
@@ -46,6 +46,8 @@ urlpatterns += [
     path('profile-pics/<int:pk>/', UserProfilePicDetailView.as_view(), name='profile-pic-detail'),
     path('profile-pics/by-username/<str:username>/', UserProfilePicByUsernameView.as_view(),
          name='profile-pic-by-username'),
+    path('api/mentioned-posts/<str:username>/', MentionedPostsViewSet.as_view({'get': 'list'}), name='mentioned-posts-by-username'),
+    path('api/posts-by-author/<str:username>/', PostByAuthorViewSet.as_view({'get': 'list'}), name='post-by-author'),
 ]
 
 '''
@@ -73,23 +75,23 @@ urlpatterns += [
     URL: /comments/
     Action Method: create
     Retrieve Comment by ID or Author's Username:
-    
+
     HTTP Method: GET
     URL (by Comment ID): /comments/{comment_id}/
     URL (by Author's Username): /comments/{author_username}/
     Action Method: retrieve
     Update Comment by ID:
-    
+
     HTTP Method: PUT or PATCH
     URL: /comments/{comment_id}/
     Action Method: update
     Delete Comment by ID:
-    
+
     HTTP Method: DELETE
     URL: /comments/{comment_id}/
     Action Method: destroy
     List Comments (All Comments):
-    
+
     HTTP Method: GET
     URL: /comments/
     Action Method: list
@@ -110,5 +112,5 @@ urlpatterns += [
     Update: PUT or PATCH to /api/friendships/{friendship_id}/
     Delete: DELETE to /api/friendships/{friendship_id}/
     retrieve a user's friends by specifying their username in the URL, like /api/friends/by-username/{username}/.
-    
+
 '''
