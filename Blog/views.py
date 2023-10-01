@@ -18,6 +18,10 @@ from .serializers import (
 )
 from .models import UserProfilePic
 from .serializers import UserProfilePicSerializer
+from rest_framework.pagination import PageNumberPagination
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -298,14 +302,7 @@ class FriendshipViewSet(viewsets.ModelViewSet):
     queryset = Friendship.objects.all()
     serializer_class = FriendshipSerializer
 
-class PostByUserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
 
-    def get_queryset(self):
-        username = self.kwargs.get('username')
-        user = get_object_or_404(User, username=username)
-        return Post.objects.filter(author=user)
 
 class FriendsByUsernameView(generics.ListAPIView):
     serializer_class = FriendshipSerializer
@@ -323,6 +320,26 @@ class UserSearchView(generics.ListAPIView):
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['username', 'email']
+
+
+class MentionedPostsViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        username = self.kwargs['username']
+        user = get_object_or_404(User, username=username)
+        return Post.objects.filter(mentioned_user=user)
+
+class PostByAuthorViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        username = self.kwargs['username']
+        user = get_object_or_404(User, username=username)
+        return Post.objects.filter(author=user)
+
 
 from drf_yasg.utils import swagger_auto_schema
 
