@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
 class Post(models.Model):
     COLOR_CHOICES = (
         ('red', 'Red'),
@@ -19,17 +20,44 @@ class Post(models.Model):
     color_code = models.CharField(max_length=10, choices=COLOR_CHOICES, default='red')
 
 class UserProfilePic(models.Model):
+    BRANCH_CHOICES = [
+        ('CSE', 'Computer Science and Engineering'),
+        ('CSE_DS', 'Computer Science and Engineering (Data Science)'),
+        ('CSE_CS', 'Computer Science and Engineering (Cyber Security)'),
+        ('ISE', 'Information Science and Engineering'),
+        ('EE', 'Electrical Engineering'),
+        ('ME', 'Mechanical Engineering'),
+        ('TE', 'Telecommunication Engineering'),
+        ('IEM', 'Industrial Engineering and Management'),
+        ('AIML', 'Artificial Intelligence and Machine Learning'),
+        ('AE', 'Aerospace Engineering'),
+        ('MCA', 'Masters of Computer Applications'),
+        ('ECE', 'Electronics and Telecommunication Engineering'),
+        ('EIE', 'Electrinics and Instrumentation Engineering'),
+        ('EEE', 'Electrical and Electrinics Engineering'),
+        ('CE', 'Chemical Engineering'),
+        ('CV', 'Civil Engineering'),
+        ('BT', 'Biotechnology')
+    ]
+
+    COLLEGE_CHOICES = [
+        ('RVCE', 'R.V. College of Engineering'),
+        ('RVU', 'R.V. University'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    branch = models.CharField(max_length=30, choices=BRANCH_CHOICES, default='', blank=True, null=True)
+    college = models.CharField(max_length=30, choices=COLLEGE_CHOICES, default='', blank=True, null=True)
 
     def __str__(self):
-        return self.user.username
+        return f"{self.user.username} - {self.get_branch_display()}"
 
 
 class Comments(models.Model):
     post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
-    comment = models.CharField(max_length=500, default=None)
+    comment = models.CharField(max_length=500, null=True)
     user_commented = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     upvote = models.BooleanField(default=False)
     downvote = models.BooleanField(default=False)
