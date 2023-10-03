@@ -11,7 +11,8 @@ from .views import (
     CommentsViewSet,
     UserSearchView, FriendsByUsernameView, UserProfilePicListCreateView, UserProfilePicDetailView,
     UserProfilePicByUsernameView,
-    MentionedPostsViewSet
+    MentionedPostsViewSet,
+    UserFriendsView
 )
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 
@@ -48,6 +49,7 @@ urlpatterns += [
          name='profile-pic-by-username'),
     path('api/mentioned-posts/<str:username>/', MentionedPostsViewSet.as_view({'get': 'list'}), name='mentioned-posts-by-username'),
     path('api/posts-by-author/<str:username>/', PostByAuthorViewSet.as_view({'get': 'list'}), name='post-by-author'),
+    path('user-friends/<int:user_id>/', UserFriendsView.as_view(), name='user-friends'),
 ]
 
 '''
